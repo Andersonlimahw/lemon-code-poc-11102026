@@ -1,0 +1,20 @@
+{"type":"session_start","sessionId":1}
+{
+  "type": "done",
+  "sessionId": 1,
+  "output": "[ERROR] Runtime cursor is not available in PATH. Install or authenticate the CLI, then retry.",
+  "actions": [],
+  "usage": {
+    "tokens": 0,
+    "cost": 0,
+    "prompt_tokens": 0,
+    "completion_tokens": 0
+  },
+  "provider": "lemon",
+  "model": "deepseek/deepseek-v4",
+  "route": {
+    "requestedRuntime": "cursor",
+    "attempts": [],
+    "fallbackUsed": false
+  }
+}

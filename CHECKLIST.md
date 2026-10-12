@@ -112,5 +112,6 @@ Orquestração principal via **lemon-code CLI (`lc chat --runtime claude ...`)**
 - [x] Atualizar `CHECKLIST.md` (este arquivo) com tudo ✅
 - [x] Atualizar `EVIDENCES.md` com logs das 8 invocações `lc chat`
 - [x] Atualizar `METRICS.md` com tempos reais (total ≈ 67 min)
-- [ ] Commit final + push (em curso)
-- [ ] Marcar goal como **complete**
+- [x] Commit final + push
+- [x] Marcar goal como **complete**
+

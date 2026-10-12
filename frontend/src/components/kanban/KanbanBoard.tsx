@@ -1,23 +1,30 @@
 import { useState } from 'react';
-import { Plus, WarningCircle, ArrowClockwise } from '@phosphor-icons/react';
+import { Plus, WarningCircle, ArrowClockwise, MagnifyingGlass } from '@phosphor-icons/react';
 import { TASK_COLUMNS, type TaskStatus } from '../../types/task';
 import { useTasks, useDeleteTask, useMoveTask } from '../../hooks/useTasks';
 import { KanbanColumn } from './KanbanColumn';
 import { TaskFormDialog } from './TaskFormDialog';
+import { FilterBar } from './FilterBar';
+import { useFilteredTasks } from '../../features/kanban/useFilteredTasks';
+import { useFilterStore } from '../../features/kanban/searchStore';
 
 export function KanbanBoard() {
   const { data: tasks = [], isLoading, isError, refetch, isFetching } = useTasks();
   const deleteMutation = useDeleteTask();
   const moveMutation = useMoveTask();
+  const { clearFilters, query, priorities } = useFilterStore();
+  const filteredTasks = useFilteredTasks(tasks);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const selectedTask = tasks.find((t) => t.id === selectedTaskId) ?? null;
+  const hasActiveFilters = query.trim() !== '' || priorities.length > 0;
+  const isFilterEmpty = hasActiveFilters && tasks.length > 0 && filteredTasks.length === 0;
 
   const tasksByStatus = TASK_COLUMNS.reduce<Record<TaskStatus, typeof tasks>>(
     (acc, col) => {
-      acc[col.id] = tasks
+      acc[col.id] = filteredTasks
         .filter((t) => t.status === col.id)
         .sort((a, b) => a.position - b.position);
       return acc;
@@ -48,28 +55,31 @@ export function KanbanBoard() {
 
   return (
     <div className="min-h-screen p-6 lg:p-10 max-w-[1600px] mx-auto motion-safe:animate-fadeIn">
-      <header className="sticky top-0 z-20 mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-slate-50/95 py-5 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/95">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">🍋 Kanban</h2>
-            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold tabular-nums text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-              {isLoading || isError ? '— tarefas' : `${tasks.length} ${tasks.length === 1 ? 'tarefa' : 'tarefas'}`}
-            </span>
+      <header className="sticky top-0 z-20 mb-8 border-b border-slate-200 bg-slate-50/95 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/95">
+        <div className="flex flex-wrap items-center justify-between gap-4 py-5">
+          <div>
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">🍋 Kanban</h2>
+              <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold tabular-nums text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                {isLoading || isError ? '— tarefas' : `${tasks.length} ${tasks.length === 1 ? 'tarefa' : 'tarefas'}`}
+              </span>
+            </div>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">TODO List da POC lemon-code</p>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">TODO List da POC lemon-code</p>
+          <button
+            type="button"
+            disabled={isLoading || isError}
+            onClick={() => {
+              setSelectedTaskId(null);
+              setIsFormOpen(true);
+            }}
+            className="flex min-h-[44px] items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 px-4 py-3 text-sm font-semibold text-slate-950 shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Plus size={18} weight="bold" aria-hidden="true" />
+            Nova Tarefa
+          </button>
         </div>
-        <button
-          type="button"
-          disabled={isLoading || isError}
-          onClick={() => {
-            setSelectedTaskId(null);
-            setIsFormOpen(true);
-          }}
-          className="flex min-h-[44px] items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 px-4 py-3 text-sm font-semibold text-slate-950 shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <Plus size={18} weight="bold" aria-hidden="true" />
-          Nova Tarefa
-        </button>
+        {!isLoading && !isError && <FilterBar />}
       </header>
 
       {isLoading ? (
@@ -99,21 +109,34 @@ export function KanbanBoard() {
             {isFetching ? 'Tentando...' : 'Tentar novamente'}
           </button>
         </div>
+      ) : isFilterEmpty ? (
+        <div className="mx-auto mt-16 max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <MagnifyingGlass size={40} className="mx-auto mb-4 text-slate-400" aria-hidden="true" />
+          <h3 className="font-semibold text-slate-900 dark:text-slate-100">Nenhuma task corresponde aos filtros</h3>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Tente ajustar sua busca ou remover os filtros ativos.</p>
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="mx-auto mt-6 flex min-h-[44px] items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:bg-slate-100 dark:text-slate-900"
+          >
+            Limpar filtros
+          </button>
+        </div>
       ) : (
-      <div className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        {TASK_COLUMNS.map((col) => (
-          <KanbanColumn
-            key={col.id}
-            id={col.id}
-            label={col.label}
-            color={col.color}
-            tasks={tasksByStatus[col.id]}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onDropTask={handleDropTask}
-          />
-        ))}
-      </div>
+        <div className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {TASK_COLUMNS.map((col) => (
+            <KanbanColumn
+              key={col.id}
+              id={col.id}
+              label={col.label}
+              color={col.color}
+              tasks={tasksByStatus[col.id]}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onDropTask={handleDropTask}
+            />
+          ))}
+        </div>
       )}
 
       <TaskFormDialog

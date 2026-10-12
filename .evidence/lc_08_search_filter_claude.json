@@ -1,0 +1,31 @@
+{"type":"session_start","sessionId":1}
+{"type":"chunk","content":"\n[SMART-DISPATCH] runtime:claude/claude-sonnet-4-6 - Explicit runtime override: routing to claude; The task looks like implementation or refactoring work. Claude is preferred for high-fidelity implementation, refactors, and reviews. Model 'claude-sonnet-4-6' is active for this CLI.\n\n"}
+{"type":"chunk","content":"Build verde (exit 0). Apenas aviso de chunk size — pré-existente, não relacionado às mudanças.\n\n`FRONTEND_SEARCH_FILTER=OK`\n\n---\n\n**Arquivos criados/modificados:**\n\n| Arquivo | Op |\n|---|---|\n| `src/features/kanban/searchStore.ts` | NOVO |\n| `src/features/kanban/useFilteredTasks.ts` | NOVO |\n| `src/components/kanban/FilterBar.tsx` | NOVO |\n| `src/components/kanban/KanbanBoard.tsx` | EDITADO |\n| `src/index.css` | intacto (fadeIn já existia) |"}
+{
+  "type": "done",
+  "sessionId": 1,
+  "output": "Build verde (exit 0). Apenas aviso de chunk size — pré-existente, não relacionado às mudanças.\n\n`FRONTEND_SEARCH_FILTER=OK`\n\n---\n\n**Arquivos criados/modificados:**\n\n| Arquivo | Op |\n|---|---|\n| `src/features/kanban/searchStore.ts` | NOVO |\n| `src/features/kanban/useFilteredTasks.ts` | NOVO |\n| `src/components/kanban/FilterBar.tsx` | NOVO |\n| `src/components/kanban/KanbanBoard.tsx` | EDITADO |\n| `src/index.css` | intacto (fadeIn já existia) |",
+  "actions": [],
+  "usage": {
+    "tokens": 0,
+    "cost": 0,
+    "prompt_tokens": 0,
+    "completion_tokens": 0
+  },
+  "provider": "runtime:claude",
+  "model": "claude-sonnet-4-6",
+  "route": {
+    "requestedRuntime": "claude",
+    "attempts": [
+      {
+        "provider": "runtime:claude",
+        "model": "claude-sonnet-4-6",
+        "outcome": "success",
+        "durationMs": 185188
+      }
+    ],
+    "fallbackUsed": false,
+    "actualProvider": "runtime:claude",
+    "actualModel": "claude-sonnet-4-6"
+  }
+}

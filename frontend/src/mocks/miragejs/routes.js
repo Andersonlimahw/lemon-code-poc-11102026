@@ -16,6 +16,7 @@ createServer({
     // If your API requests go to an external domain, pass those through by
     // specifying the fully qualified domain name
     this.passthrough("http://api.acme.com/**");
+    this.passthrough('/api/**');
 
     // Sample with json
     // return simple json copiyng from api

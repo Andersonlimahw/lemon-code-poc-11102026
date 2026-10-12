@@ -24,6 +24,7 @@ export const usePeopleQuery = (options?: UsePeopleQueryOptions) => {
       .then((data: PeopleModel[]) => data as PeopleModel[])
       .catch((error) => {
         console.error('usePeopleQuery fetch error:', error);
+        return undefined;
       });
   }
 

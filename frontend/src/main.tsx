@@ -7,7 +7,7 @@ import {
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { Login } from './pages/Login/index.js';
+import { Kanban } from './pages/Kanban/index.js';
 import { Chat } from './pages/Chat';
 import { Groups } from './pages/Groups';
 import { Profile } from './pages/Profile';
@@ -30,7 +30,7 @@ if (import.meta.env.DEV) {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Login />,
+    element: <Kanban />,
   },
   {
     path: "/chat",

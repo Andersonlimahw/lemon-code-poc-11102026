@@ -37,7 +37,7 @@ const storage = typeof window !== "undefined"
     }));
 
 const storeInitializer = (set: any): StoreState => ({
-  ...initialState,
+  ...(initialState as IState),
   dispatch: ({ type, payload }: IAction) =>
     set(
       (state: IState) => reducer(state, { type, payload }) ?? state,

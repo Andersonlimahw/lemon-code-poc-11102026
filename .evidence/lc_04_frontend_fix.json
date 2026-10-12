@@ -1,0 +1,31 @@
+{"type":"session_start","sessionId":1}
+{"type":"chunk","content":"\n[SMART-DISPATCH] runtime:claude/claude-sonnet-4-6 - Explicit runtime override: routing to claude; The task looks like exploratory browser testing. Claude is preferred for high-fidelity implementation, refactors, and reviews. Model 'claude-sonnet-4-6' is active for this CLI.\n\n"}
+{"type":"chunk","content":"Build rodando em background, aguardando notificação."}
+{
+  "type": "done",
+  "sessionId": 1,
+  "output": "Build rodando em background, aguardando notificação.",
+  "actions": [],
+  "usage": {
+    "tokens": 0,
+    "cost": 0,
+    "prompt_tokens": 0,
+    "completion_tokens": 0
+  },
+  "provider": "runtime:claude",
+  "model": "claude-sonnet-4-6",
+  "route": {
+    "requestedRuntime": "claude",
+    "attempts": [
+      {
+        "provider": "runtime:claude",
+        "model": "claude-sonnet-4-6",
+        "outcome": "success",
+        "durationMs": 262791
+      }
+    ],
+    "fallbackUsed": false,
+    "actualProvider": "runtime:claude",
+    "actualModel": "claude-sonnet-4-6"
+  }
+}

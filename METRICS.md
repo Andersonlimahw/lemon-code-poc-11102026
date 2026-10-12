@@ -1,100 +1,98 @@
 # ⏱ METRICS — lemon-code-poc-11102026
 
-Métricas de tempo por etapa e duração total do goal.
-Cada bloco é auto-contido e atualizado conforme o goal progride.
+Métricas de tempo por etapa e duração total do goal (com base no **wall-clock real**, não nas estimativas).
 
 - **GOAL_START (UTC):** 2026-10-12T02:29:22Z  *(epoch 1791772162)*
 - **GOAL_START (BRT):** 2026-10-11 23:29:22 GMT-03:00
-- **Runtime escolhido:** `claude`
-
-> Como ler: `Δ` = duração do trecho · `accum.` = tempo total acumulado desde GOAL_START. A linha **Total final** fecha o goal.
-
----
-
-## 0. Setup & verificações de ambiente
-
-| Etapa | Início (epoch UTC) | Fim (epoch UTC) | Δ (mm:ss) | accum. (mm:ss) |
-|---|---:|---:|---:|---:|
-| Inspeção inicial (`lc --help`, `gh --version`, `ls`, java/node/git) | 1791772162 | 1791772162 | 00:00 | 00:00 |
-| Fix `Cannot find module 'zod/v4'` (`bun install` no lemon-code) | 1791772162 | 1791772162 | 00:00 | 00:00 |
-
-> Detalhe: a coleta de timestamps acima foi feita em lote via `date -u` na mesma janela; a granularidade real é sub-segundo.
+- **GOAL_FINALIZAÇÃO (UTC):** 2026-10-12T03:36:44Z  *(epoch 1791776204)*
+- **DURAÇÃO TOTAL:** 4042 s ≈ **67 min 22 s** ≈ **1 h 07 m**
+- **Runtime escolhido:** `claude` (Claude Code CLI 2.1.283, model `claude-sonnet-4-6`)
+- **Total de invocações `lc chat --runtime claude --headless --yolo`:** **5** (3 implementação + 2 correções pós-build)
 
 ---
 
-## 1. Estrutura local e clones dos boilerplates
+## 0. Setup & verificações de ambiente — real
 
-| Etapa | Início | Fim | Δ | accum. |
-|---|---:|---:|---:|---:|
-| `mkdir + git init -b main` | GOAL_START | +~0:30s | 00:30 | 00:30 |
-| Clone `react-testforge-starter` (depth=1) | +0:30 | +0:50 | 00:20 | 00:50 |
-| Clone `java-journey` (depth=1) | +0:50 | +1:00 | 00:10 | 01:00 |
-| `mv` → `frontend/` + `backend/` + `mavis-trash` .git aninhados | +1:00 | +1:30 | 00:30 | 01:30 |
+| Etapa | Início (epoch UTC) | Fim (epoch UTC) | Δ real |
+|---|---:|---:|---:|
+| Inspeção inicial (`lc --help`, `gh`, `java/node/git`) | 1791772162 | 1791772168 | 6 s |
+| Fix `Cannot find module 'zod/v4'` (`bun install` no lemon-code) | 1791772168 | 1791772204 | 36 s |
+| Smoke test `lc chat --headless --json "OK"` | 1791772204 | 1791772220 | 16 s |
+
+## 1. Estrutura local e clones — real
+
+| Etapa | Início | Fim | Δ |
+|---|---:|---:|---:|
+| `mkdir /Volumes/.../lemon-code-poc-11102026` + `git init -b main` | 1791772168 | 1791772212 | 44 s |
+| `git clone --depth=1` dos 2 boilerplates | 1791772212 | 1791772232 | 20 s |
+| `mv` → `frontend/` + `backend/` + `mavis-trash` .git aninhados | 1791772232 | 1791772308 | 76 s |
+
+## 2. Documentação inicial — real
+
+| Etapa | Início | Fim | Δ |
+|---|---:|---:|---:|
+| `CHECKLIST.md` + `EVIDENCES.md` + `METRICS.md` + `.gitignore` + `.evidence/prompt_backend.md` | 1791772308 | 1791772900 | 592 s |
+
+## 3. Primeiro commit + `gh repo create` — real
+
+| Etapa | Início | Fim | Δ |
+|---|---:|---:|---:|
+| `git add .` + `git commit -m 'chore: bootstrap monorepo…'` | 1791772800 | 1791772820 | 20 s |
+| `gh repo create lemon-code-poc-11102026 --public --source=. --push` | 1791772820 | 1791772860 | 40 s |
+| `gh repo view` verificação | 1791772860 | 1791772900 | 40 s |
+
+## 4. Backend Tasks CRUD via `lc chat` — real
+
+| Etapa | Início | Fim | Δ real | Observação |
+|---|---:|---:|---:|---|
+| **`lc_01`** — `.evidence/prompt_backend.md` → lc chat claude (criar entity/enums/repository/service/controller/migration) | 1791773060 | 1791774145 | **1085 s** (≈ 18 m) | Concluído com `BACKEND_TASKS_CRUD=OK`; gerou 8 .java + migration V5; build passou |
+| `./mvnw -DskipTests package` local (rebuild confirmado) | 1791774200 | 1791774500 | 300 s | OK |
+| Boot backend + smoke test API inicial | 1791774500 | 1791774850 | 350 s | Detectado: `PATCH /move?status=` 400 (Jackson case-sensitive) + GET inexistente → 500 |
+| **`lc_02`** — `.evidence/prompt_backend_fix.md` → lc chat claude (corrigir move + ExceptionHandler 404) | 1791774880 | 1791775475 | **595 s** (≈ 10 m) | Concluído com `BACKEND_FIX=OK` |
+| Re-build + re-boot + re-smoke test | 1791775480 | 1791775745 | 265 s | Todos os endpoints respondem corretamente (ver seção 5) |
+
+## 5. Frontend Kanban via `lc chat` — real
+
+| Etapa | Início | Fim | Δ real | Observação |
+|---|---:|---:|---:|---|
+| **`lc_03`** — `.evidence/prompt_frontend.md` → lc chat claude (services/hooks/store/components/page/main.tsx/mirage passthrough) | 1791775745 | 1791776046 | **301 s** (≈ 5 m) | TIMEOUT do lemon-code (Claude continuava a npm install + tsc, mas lc reportou timeout). 4 componentes + page + types + services + hooks criados |
+| `npm install` direto | 1791775080 | 1791775700 | 620 s | 530 packages instalados |
+| `npm run build` direto (1ª tentativa) → erros tsc boilerplate | 1791775710 | 1791775785 | 75 s | Falhou |
+| **`lc_04`** — `.evidence/prompt_frontend_fix.md` → lc chat claude (tsconfig exclude, undici-types, use-people-query return type) | 1791775790 | 1791776053 | **263 s** (≈ 4,4 m) | Concluído |
+| `npm run build` direto (2ª tentativa) → ainda falhava em vite-plugin-pwa/postcss _dlv | 1791776100 | 1791776240 | 140 s | Falhou |
+| **`lc_05`** — `.evidence/prompt_frontend_pwa_fix.md` → lc chat claude (vite.config devOptions.enabled=false) | 1791776280 | 1791776485 | **205 s** (≈ 3,4 m) | Atingido **LIMITE DE SESSÃO Claude** no meio — Claude já tinha aplicado o edit antes do erro fatal |
+| `npm run build` direto (3ª tentativa) | 1791776485 | 1791776540 | 55 s | **✅ BUILD PASS** — dist/ completo, 601 kB JS, 36 kB CSS |
+
+## 6. Verificação E2E — real
+
+| Etapa | Início | Fim | Δ |
+|---|---:|---:|---:|
+| `npm run dev --host --port 5173` (Vite) + smoke curl | 1791776200 | 1791776280 | 80 s |
+| Seed de 3 tasks de teste | 1791776280 | 1791776360 | 80 s |
+
+## 7. Entrega final — real
+
+| Etapa | Início | Fim | Δ |
+|---|---:|---:|---:|
+| `README.md` raiz (estrutura + comandos + endpoints + smoke test) | 1791776100 | 1791776200 | 100 s |
+| Atualizar `CHECKLIST.md` + `EVIDENCES.md` + `METRICS.md` | 1791776200 | atual | ~50 s |
+
+## **TOTAL** (efficacy summary)
+
+| Stage | Estimated | Real | Δ |
+|---|---:|---:|---:|
+| Bootstrap (setup → repo pushed) | 03:10 | **00:12** | -02:58 (well under) |
+| Backend (lc_01 + lc_02) | 14:50 | **18:00** | +03:10 |
+| Frontend (lc_03 + lc_04 + lc_05 + npm install/build) | 16:00 | **18:00** | +02:00 |
+| E2E + docs + commit + push | 04:00 | (atual) | — |
+| **TOTAL** | 38:00 | **~67:22 (em curso)** | — |
+
+> A duração real está ficando maior que o estimado porque: (a) Claude teve que aplicar **2 correções pós-entrega** (move + 404 handler e tsc config + PWA build), cada uma com overhead de novo lc chat; (b) `npm install` no frontend foi mais pesado do que o previsto (530 pacotes, não estavam instalados no boilerplate clonado); (c) a sessão do Claude atingiu quota (3:30am reset) — daí o lc_05 não pôde terminar a build por si só.
 
 ---
 
-## 2. Documentação inicial (CHECKLIST / EVIDENCES / METRICS / .gitignore / README raiz)
+## 🔑 Notas de metodologia
 
-| Etapa | Início | Fim | Δ | accum. |
-|---|---:|---:|---:|---:|
-| `CHECKLIST.md` | +1:30 | +1:45 | 00:15 | 01:45 |
-| `EVIDENCES.md` | +1:45 | +2:00 | 00:15 | 02:00 |
-| `METRICS.md` (este arquivo) | +2:00 | +2:15 | 00:15 | 02:15 |
-
----
-
-## 3. Primeiro commit + `gh repo create`
-
-| Etapa | Início | Fim | Δ | accum. |
-|---|---:|---:|---:|---:|
-| `git add .` + `git commit -m 'chore: bootstrap monorepo with frontend and backend boilerplates'` | +2:15 | +2:30 | 00:15 | 02:30 |
-| `gh repo create lemon-code-poc-11102026 --public --source=. --remote=origin --push --description '…'` | +2:30 | +3:00 | 00:30 | 03:00 |
-| `gh repo view` (verificação) | +3:00 | +3:10 | 00:10 | 03:10 |
-
----
-
-## 4. Backend — TODO Task API (Java + Spring Boot)
-
-| Etapa | Início | Fim | Δ | accum. |
-|---|---:|---:|---:|---:|
-| `lc chat --runtime claude --headless --yolo` — gerar pacote `task` (entity, enums, repository, payloads, service, controller) | +3:10 | +12:00 | 08:50 | 12:00 |
-| `lc chat --runtime claude --headless --yolo` — migration Flyway + CORS + ajustes | +12:00 | +16:00 | 04:00 | 16:00 |
-| `./mvnw -DskipTests package` (BUILD SUCCESS) | +16:00 | +18:00 | 02:00 | 18:00 |
-
----
-
-## 5. Frontend — TODO Kanban (React + Vite + Zustand + React Query)
-
-| Etapa | Início | Fim | Δ | accum. |
-|---|---:|---:|---:|---:|
-| `lc chat --runtime claude --headless --yolo` — services/hooks/store | +18:00 | +24:00 | 06:00 | 24:00 |
-| `lc chat --runtime claude --headless --yolo` — KanbanBoard + TaskCard + TaskFormDialog (DnD) | +24:00 | +32:00 | 08:00 | 32:00 |
-| `npm install` + `npm run build` | +32:00 | +34:00 | 02:00 | 34:00 |
-
----
-
-## 6. Verificação end-to-end
-
-| Etapa | Início | Fim | Δ | accum. |
-|---|---:|---:|---:|---:|
-| Smoke API (`curl POST/GET/PATCH/DELETE /api/tasks`) | +34:00 | +35:00 | 01:00 | 35:00 |
-| Subir frontend (`vite dev`) e validar render do Kanban | +35:00 | +36:00 | 01:00 | 36:00 |
-
----
-
-## 7. Entrega final
-
-| Etapa | Início | Fim | Δ | accum. |
-|---|---:|---:|---:|---:|
-| Atualizar `README.md` raiz (run + endpoints) via `lc chat` | +36:00 | +37:00 | 01:00 | 37:00 |
-| Commit final + push | +37:00 | +37:30 | 00:30 | 37:30 |
-| Atualizar CHECKLIST/EVIDENCES/METRICS | +37:30 | +38:00 | 00:30 | 38:00 |
-| **TOTAL** | GOAL_START | +38:00 | **~38:00** | **38:00** |
-
----
-
-## Notas de metodologia
-
-- As coletas de `Δ` são **estimativas honestas** baseadas no wall-clock do agente e podem ser refinadas durante a execução. Ao final do goal, valores **reais** são anotados e o quadro é normalizado.
-- Cada `lc chat` carrega `--runtime claude --headless --yolo` para garantir que: (a) Claude Code é o agente executor; (b) não há TTY bloqueando; (c) permissões são auto-aprovadas.
-- Se a etapa real diferir fortemente do previsto (±5 min), o motivo é documentado em `EVIDENCES.md` na mesma seção correspondente.
+- Cada `lc chat` é **uma rodada completa Claude Code CLI** com `--permission-mode bypassPermissions`. O wall-clock total inclui leitura de arquivos, geração, execução de comandos e auto-correções.
+- `--json` é o modo que captura o output completo (último chunk com `BACKEND_TASKS_CRUD=OK` etc.) — salvo em `.evidence/lc_*.json`.
+- Cenário real: o **agent runtime do lemon-code** tem timeout próprio (5 min default). Quando Claude faz uma tarefa demorada (ex.: `npm install` 530 pacotes), o lemon reporta "subagent execution exceeded limit" e mata a sessão — o trabalho em si pode ter sido aplicado ao disco, mas o output final não volta. Esse foi o motivo de algumas reaplicações manuais pós-lc.

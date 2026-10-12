@@ -79,11 +79,38 @@ Orquestração principal via **lemon-code CLI (`lc chat --runtime claude ...`)**
 - [x] Seed de 3 tasks reais em estados diferentes (todo / review / done) para popular o Kanban
 - [ ] E2E Playwright (opcional nesta POC) — boilerplate já tem infra em `frontend/e2e/`
 
-## 6. Entrega final
+## 6. Pós-POC — runtime picker (ADR 0061) + features adicionais
+
+### 6.1 UI polish (lc_07 — runtime: codex)
+
+- [x] Fade/slide/pop keyframes em `frontend/src/index.css`
+- [x] `darkMode: 'class'` em `frontend/tailwind.config.js`
+- [x] Sticky header com chip + gradient FAB em `KanbanBoard.tsx`
+- [x] Skeleton de loading + error state com retry em `KanbanBoard.tsx`
+- [x] Gradientes por coluna + drag-over highlight em `KanbanColumn.tsx`
+- [x] Hover lift + drag handle + gradient priority badge em `TaskCard.tsx`
+- [x] Radix Dialog com slideUp/fadeIn em `TaskFormDialog.tsx`
+- [x] `cd frontend && npm run build` → exit 0
+
+### 6.2 Busca textual + filtro por prioridade (lc_08 — runtime: claude)
+
+- [x] `frontend/src/features/kanban/searchStore.ts` — zustand store com
+      `query`, `priorities`, `setQuery`, `togglePriority`, `clearFilters`;
+      persist em `localStorage` chave `lemon.kanban.filters.v1`
+- [x] `frontend/src/features/kanban/useFilteredTasks.ts` — hook puro aplicando
+      busca case-insensitive em `title`/`description` + filtro por prioridade
+- [x] `frontend/src/components/kanban/FilterBar.tsx` — search input com
+      MagnifyingGlass + clear X, dropdown Radix (Funnel + Check), botão
+      Limpar (Trash); `data-testid="kanban-filter-bar"`
+- [x] `frontend/src/components/kanban/KanbanBoard.tsx` — integra FilterBar +
+      useFilteredTasks; sticky no topo; empty state quando filtro zera
+- [x] `cd frontend && npm run build` → exit 0
+
+## 7. Entrega final
 
 - [x] Atualizar `README.md` raiz com instruções run + endpoints
 - [x] Atualizar `CHECKLIST.md` (este arquivo) com tudo ✅
-- [x] Atualizar `EVIDENCES.md` com logs das 5 invocações `lc chat`
+- [x] Atualizar `EVIDENCES.md` com logs das 8 invocações `lc chat`
 - [x] Atualizar `METRICS.md` com tempos reais (total ≈ 67 min)
 - [ ] Commit final + push (em curso)
 - [ ] Marcar goal como **complete**

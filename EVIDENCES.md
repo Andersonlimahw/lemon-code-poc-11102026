@@ -218,17 +218,97 @@ $ curl -X POST localhost:8080/api/tasks -d '{"title":"Documentar endpoints","sta
 
 ---
 
-## Resumo das execuções `lc chat --runtime claude --headless --yolo`
+## E10 — `lc_06` / `lc_07` / `lc_08` — pós-POC via runtime picker (ADR 0061)
 
-| id | prompt | status | duração claude | duração wall-clock | resultado |
-|---|---|---|---:|---:|---|
-| lc_01 | prompt_backend.md | success | 103 s | ~5 min | BACKEND_TASKS_CRUD=OK |
-| lc_02 | prompt_backend_fix.md | success | 62 s | ~3 min | BACKEND_FIX=OK |
-| lc_03 | prompt_frontend.md | timeout (mas aplicou) | n/a | ~6 min | arquivos criados, build não validado |
-| lc_04 | prompt_frontend_fix.md | timeout (mas aplicou) | n/a | ~5 min | tsc passa, vite-plugin-pwa falha |
-| lc_05 | prompt_frontend_pwa_fix.md | session limit hit | n/a | ~3 min | edit aplicado, build não validado |
+Após o bootstrap inicial da POC (lc_01..lc_05), uma segunda onda de melhorias foi
+orquestrada usando o runtime picker recém-adicionado ao lemon-code TUI (PR #42,
+ADR 0061). Esses três runs validam que o CLI consegue delegar para runtimes
+distintos (`claude`, `codex`) e que o frontend continua compilando após cada
+delegação.
 
-A operação total `lc chat` wall-clock: ~22 minutos de invocações + 12 min de overhead Claude MCP/CI = **~34 min** consumidos do total de 67 min do goal.
+### `lc_06` — UI polish (runtime: `cursor`, falhou)
+
+```
+$ LEMON_YOLO_ACKNOWLEDGE=true lc chat --runtime cursor --headless --json --yolo \
+    "$(cat .evidence/prompt_frontend_ui_polish.md)" > .evidence/lc_06_ui_polish_cursor.json 2>&1
+```
+
+- **Output:** `[ERROR] Runtime cursor is not available in PATH. Install or
+  authenticate the CLI, then retry.`
+- **Status:** falha controlada — o dispatcher lemon-code identificou
+  corretamente que `cursor` não está instalado. Nada modificado.
+
+### `lc_07` — UI polish (runtime: `codex`, sucesso parcial)
+
+```
+$ LEMON_YOLO_ACKNOWLEDGE=true lc chat --runtime codex --headless --json --yolo \
+    --smart-dispatch false "$(cat .evidence/prompt_frontend_ui_polish.md)" \
+    > .evidence/lc_07_ui_polish_codex.json 2>&1
+```
+
+- **Output final:** `FRONTEND_UI_POLISH=OK` + tabela de 5 arquivos modificados.
+- **Duração codex:** ≈5 min, com auth error tardio do codex CLI (subscription
+  adapter) — não bloqueou a aplicação dos edits.
+- **Arquivos modificados:**
+  - `frontend/src/index.css` (+44, −10): fadeIn/slideUp/popIn keyframes, body theme.
+  - `frontend/tailwind.config.js` (+2, −1): `darkMode: 'class'`.
+  - `frontend/src/components/kanban/KanbanBoard.tsx` (+60, −28): sticky header,
+    gradient FAB, skeleton, error state.
+  - `frontend/src/components/kanban/KanbanColumn.tsx` (+30, −14): gradient
+    headers, drag-over, empty states.
+  - `frontend/src/components/kanban/TaskCard.tsx` (+37, −14): hover, drag handle,
+    priority gradient.
+  - `frontend/src/components/kanban/TaskFormDialog.tsx` (+58, −22): radix
+    dialog com slideUp/fadeIn.
+- **Build:** `cd frontend && npm run build` → ✓ 5003 modules transformed, 619 kB JS.
+
+### `lc_08` — busca textual + filtro por prioridade (runtime: `claude`, sucesso)
+
+```
+$ LEMON_YOLO_ACKNOWLEDGE=true lc chat --runtime claude --headless --json --yolo \
+    --smart-dispatch false "$(cat .evidence/prompt_frontend_search_filter.md)" \
+    > .evidence/lc_08_search_filter_claude.json 2>&1
+```
+
+- **Output final:** `FRONTEND_SEARCH_FILTER=OK` + tabela de 5 arquivos.
+- **Duração claude:** 185 188 ms (≈3 min). Route report:
+  `{"provider":"runtime:claude","model":"claude-sonnet-4-6","outcome":"success"}`.
+- **Arquivos:**
+  - `frontend/src/features/kanban/searchStore.ts` (NOVO, 29 linhas): zustand
+    store com `query`, `priorities`, `setQuery`, `togglePriority`,
+    `clearFilters`; persistido em `lemon.kanban.filters.v1` no localStorage.
+  - `frontend/src/features/kanban/useFilteredTasks.ts` (NOVO, 23 linhas):
+    hook puro aplicando busca (case-insensitive em title/description) e
+    filtro de prioridades em ordem.
+  - `frontend/src/components/kanban/FilterBar.tsx` (NOVO, 105 linhas): search
+    input (MagnifyingGlass + clear X), dropdown
+    `@radix-ui/react-dropdown-menu` (Funnel + Check), botão Limpar (Trash).
+    `data-testid="kanban-filter-bar"`.
+  - `frontend/src/components/kanban/KanbanBoard.tsx` (EDITADO): integra
+    `FilterBar` + `useFilteredTasks`; sticky no topo; empty state quando
+    filtro zera mas há tasks.
+  - `frontend/src/index.css` (intacto): `fadeIn` já existia da lc_07 — não duplicado.
+- **Build:** `cd frontend && npm run build` → ✓ 630.19 kB JS / 51.26 kB CSS,
+  exit 0 em 3.06 s.
+
+---
+
+## Resumo das execuções `lc chat --runtime <R> --headless --yolo`
+
+| id | prompt | runtime | status | duração | resultado |
+|---|---|---|---|---:|---|
+| lc_01 | prompt_backend.md | claude | success | 103 s | BACKEND_TASKS_CRUD=OK |
+| lc_02 | prompt_backend_fix.md | claude | success | 62 s | BACKEND_FIX=OK |
+| lc_03 | prompt_frontend.md | claude | timeout (mas aplicou) | ~6 min wall | arquivos criados, build não validado |
+| lc_04 | prompt_frontend_fix.md | claude | timeout (mas aplicou) | ~5 min wall | tsc passa, vite-plugin-pwa falha |
+| lc_05 | prompt_frontend_pwa_fix.md | claude | session limit hit | ~3 min wall | edit aplicado, build não validado |
+| lc_06 | prompt_frontend_ui_polish.md | cursor | failure (PATH) | n/a | erro controlado: `cursor` não instalado |
+| lc_07 | prompt_frontend_ui_polish.md | codex | success (aplicou) | 300 s wall | FRONTEND_UI_POLISH=OK + build verde |
+| lc_08 | prompt_frontend_search_filter.md | claude | success | 185 s | FRONTEND_SEARCH_FILTER=OK + build verde |
+
+lc_06 → lc_08 validam que o runtime picker (ADR 0061) funciona end-to-end:
+`codex` e `claude` ambos entregando UI polish / feature completa; `cursor`
+sendo rejeitado corretamente com mensagem útil quando não está no PATH.
 
 ---
 

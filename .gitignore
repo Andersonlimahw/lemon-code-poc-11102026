@@ -1,0 +1,47 @@
+# Monorepo root .gitignore
+# Frontend (react-testforge-starter) e Backend (java-journey)
+# trazem seus próprios ignores; este arquivo cobre só o raiz + redundâncias.
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# AI tooling local (regenerable; não versionar)
+.claude/
+.codex/
+.gemini/
+.opencode/
+.cursor/
+.aider*
+.minimax/
+.cursor-pid
+
+# Trash recoverable (não comitar)
+.Trash/
+
+# Sensible defaults que boilerplates individuais podem já ter,
+# mas reforçamos no raiz:
+node_modules/
+dist/
+build/
+dev-dist/
+target/
+.gradle/
+*.class
+*.jar
+coverage/
+.nyc_output/
+*.tsbuildinfo

@@ -1,0 +1,36 @@
+{"type":"session_start","sessionId":1}
+{"type":"chunk","content":"\n[SMART-DISPATCH] runtime:codex/workspace default - Explicit runtime override: routing to codex; The task looks like review, bug hunting, or regression analysis. Codex is preferred for focused code generation and quick patch execution. The CLI default model is active.\n\n"}
+{
+  "type": "done",
+  "sessionId": 1,
+  "output": "[ERROR] Runtime codex failed: Install or configure an official subscription adapter before logging in.",
+  "actions": [],
+  "usage": {
+    "tokens": 0,
+    "cost": 0,
+    "prompt_tokens": 0,
+    "completion_tokens": 0
+  },
+  "provider": "lemon",
+  "model": "deepseek/deepseek-v4",
+  "route": {
+    "requestedRuntime": "codex",
+    "attempts": [
+      {
+        "provider": "runtime:codex",
+        "model": "workspace default",
+        "outcome": "error",
+        "reason": "local CLI authentication failed; trying the ready subscription executor",
+        "durationMs": 300054
+      },
+      {
+        "provider": "runtime:codex",
+        "model": "workspace default",
+        "outcome": "error",
+        "reason": "Install or configure an official subscription adapter before logging in.",
+        "durationMs": 300058
+      }
+    ],
+    "fallbackUsed": false
+  }
+}
